@@ -42,7 +42,7 @@ services:
     #ports:
     # Mapping ports should not be done if we do not want to expose the service to the internet
     #  - 6006:8888
-    command: tensorboard --logdir=runs --port=8888 --bind_all --path_prefix=/tensorboard/
+    command: tensorboard --logdir=tensorboard/runs --port=8888 --bind_all --path_prefix=/tensorboard/
     ipc: host
     labels:
       - log.level=debug
@@ -53,7 +53,8 @@ services:
       - traefik
 
   traefik:
-    image: library/traefik:1.7.18
+    image: traefik:1.7.18
+    container_name: traefik
     ports:
       - "80:80"
       - "443:443"
