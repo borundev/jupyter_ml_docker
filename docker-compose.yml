@@ -4,7 +4,7 @@ services:
 
   tensorflow_and_pytorch:
     build:
-      context: ../JupyterOnTraefik/tensorflow_and_pytorch
+      context: .
     container_name: tensorflow_and_pytorch
     # ports:
     # Mapping ports should not be done if we do not want to expose the service to the internet
@@ -29,7 +29,7 @@ services:
 
   tensorboard:
     build:
-      context: ../JupyterOnTraefik/tensorflow_and_pytorch
+      context: .
       #dockerfile: small_file_for_testing
     container_name: tensorboard
     user: $NB_UID:$NB_GID
