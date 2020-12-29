@@ -7,11 +7,5 @@ the same environment is not possible.
 
 # Usage
 
-To use source the file `source_environment_variables`
-
-```bash
-source source_environment_variables.sh
-```
-
-If you have a notebooks folder that you'd want to access point it to the variable 
-`NOTEBOOKS_FOLDER`. Then run the docker-compose file.
+To use make sure the environment variables in `source_environment_variables` are what you want 
+them to be and run `./run.sh up`
