@@ -3,8 +3,7 @@ version: '2'
 services:
 
   tensorflow_and_pytorch:
-    build:
-      context: .
+    build: .
     container_name: tensorflow_and_pytorch
     # ports:
     # Mapping ports should not be done if we do not want to expose the service to the internet
@@ -24,13 +23,12 @@ services:
       - log.level=debug
       - traefik.enable=true
       - traefik.frontend.rule=Host:${HOSTNAME};PathPrefix:/tensorflow_and_pytorch/
+      - traefik.frontend.auth.basic=${ML_HTTP_USER}:${ML_HTTP_AUTH_PASS_ENC}
     depends_on:
       - traefik
 
   tensorboard:
-    build:
-      context: .
-      #dockerfile: small_file_for_testing
+    build: .
     container_name: tensorboard
     user: $NB_UID:$NB_GID
     working_dir: /home/${NB_USER}
@@ -48,18 +46,7 @@ services:
       - log.level=debug
       - traefik.enable=true
       - traefik.frontend.rule=Host:${HOSTNAME};PathPrefix:/tensorboard/
+      - traefik.frontend.auth.basic=${ML_HTTP_USER}:${ML_HTTP_AUTH_PASS_ENC}
     depends_on:
       - tensorflow_and_pytorch
       - traefik
-
-  traefik:
-    image: traefik:1.7.18
-    container_name: traefik
-    ports:
-      - "80:80"
-      - "443:443"
-      - "8080:8080"
-    command: -d --web --web.address=:8080
-    volumes:
-      - ./traefik/traefik.toml:/etc/traefik/traefik.toml:ro
-      - /var/run/docker.sock:/var/run/docker.sock
