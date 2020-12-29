@@ -31,7 +31,6 @@ RUN pip install -U -r packages/requirements_tf.txt
 # https://github.com/jupyterhub/jupyterhub/issues/2759
 # Instead we have to create a new one that is still called python3 internally but its display name
 # is Tensorflow
-RUN python -m ipykernel install --name python3 --display-name "Tensorflow"
 
 
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
@@ -39,10 +38,22 @@ RUN bash Miniconda3-latest-Linux-x86_64.sh -b -p /miniconda
 ENV PATH=$PATH:/miniconda/condabin
 
 RUN conda env create -f packages/environment_pytorch.yml
+
+SHELL ["conda","run","-n","pytorch","/bin/bash","-c"]
+RUN pip install -U -r packages/requirements_pytorch.txt
+
+SHELL ["/bin/bash","-c"]
+RUN python -m ipykernel install --name python3 --display-name "Tensorflow"
+
 SHELL ["conda","run","-n","pytorch","/bin/bash","-c"]
 RUN python -m ipykernel install --name pytorch --display-name "PyTorch"
-RUN pip install -U -r packages/requirements_pytorch.txt
 
 SHELL ["/bin/bash","-c"]
 RUN rm -rf packages
 RUN rm Miniconda3-latest-Linux-x86_64.sh
+
+RUN mkdir -pv /etc/ipython/
+COPY ipython/ipython_config.py /etc/ipython/ipython_config.py
+
+ENTRYPOINT ["jupyter", "notebook", "--no-browser","--ip=0.0.0.0"]
+

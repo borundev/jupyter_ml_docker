@@ -16,7 +16,7 @@ services:
       - /etc/group:/etc/group:ro
       - /etc/passwd:/etc/passwd:ro
       - /etc/shadow:/etc/shadow:ro
-    command: bash -c "conda init && echo 'conda activate pytorch' >> ~/.bashrc && jupyter notebook --port=8888 --ip=0.0.0.0 --NotebookApp.base_url='tensorflow_and_pytorch'"
+    command: "--NotebookApp.base_url='tensorflow_and_pytorch'"
     environment:
       - JUPYTER_CONFIG_DIR=/home/${NB_USER}
     labels:
@@ -40,6 +40,7 @@ services:
     #ports:
     # Mapping ports should not be done if we do not want to expose the service to the internet
     #  - 6006:8888
+    entrypoint: []
     command: tensorboard --logdir=tensorboard/runs --port=8888 --bind_all --path_prefix=/tensorboard/
     ipc: host
     labels:
