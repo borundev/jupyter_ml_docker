@@ -1,10 +1,11 @@
-version: '2'
+version: '3.8'
 
 services:
 
   tensorflow_and_pytorch:
     build: .
     container_name: tensorflow_and_pytorch
+    init: true
     # ports:
     # Mapping ports should not be done if we do not want to expose the service to the internet
     #   - 8888:8888
