@@ -25,8 +25,8 @@ services:
       - traefik.enable=true
       - traefik.frontend.rule=Host:${HOSTNAME};PathPrefix:/tensorflow_and_pytorch/
       - traefik.frontend.auth.basic=${ML_HTTP_USER}:${ML_HTTP_AUTH_PASS_ENC}
-    depends_on:
-      - traefik
+    networks:
+      - traefik_default
 
   tensorboard:
     build: .
@@ -49,6 +49,10 @@ services:
       - traefik.enable=true
       - traefik.frontend.rule=Host:${HOSTNAME};PathPrefix:/tensorboard/
       - traefik.frontend.auth.basic=${ML_HTTP_USER}:${ML_HTTP_AUTH_PASS_ENC}
-    depends_on:
-      - tensorflow_and_pytorch
-      - traefik
+    networks:
+      - traefik_default
+
+networks:
+  traefik_default:
+    external:
+      name: traefik_default
