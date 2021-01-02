@@ -20,6 +20,8 @@ services:
     command: "--NotebookApp.base_url='tensorflow_and_pytorch'"
     environment:
       - JUPYTER_CONFIG_DIR=/home/${NB_USER}
+      - PYTORCH_DATA=/home/${NB_USER}/pytorch_data
+      - TENSORFLOW_DATA=/home/${NB_USER}/tensorflow_data
     labels:
       - log.level=debug
       - traefik.enable=true
