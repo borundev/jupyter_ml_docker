@@ -2,3 +2,7 @@ torch
 torchvision
 pytorch-lightning
 torchsummary
+sklearn
+wandb
+pandas
+

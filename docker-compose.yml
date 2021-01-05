@@ -4,7 +4,7 @@ services:
 
   tensorflow_and_pytorch:
     build: .
-    container_name: tensorflow_and_pytorch
+    container_name: tensorflow_and_pytorch2
     init: true
     # ports:
     # Mapping ports should not be done if we do not want to expose the service to the internet
@@ -13,10 +13,12 @@ services:
     working_dir: /home/${NB_USER}
     volumes:
       - ${NOTEBOOKS_FOLDER}:/home/${NB_USER}
+      - ./notebooks:/home/${NB_USER}/repository_notebooks
       - /etc/group:/etc/group:ro
       - /etc/passwd:/etc/passwd:ro
       - /etc/shadow:/etc/shadow:ro
-    command: "--NotebookApp.base_url='tensorflow_and_pytorch'"
+      - ./utils:/home/${NB_USER}/extra_packages
+    command: "--NotebookApp.base_url='tensorflow_and_pytorch2'"
     environment:
       - JUPYTER_CONFIG_DIR=/home/${NB_USER}
       - PYTORCH_DATA=/home/${NB_USER}/pytorch_data
@@ -24,14 +26,14 @@ services:
     labels:
       - log.level=debug
       - traefik.enable=true
-      - traefik.frontend.rule=Host:${HOSTNAME};PathPrefix:/tensorflow_and_pytorch/
+      - traefik.frontend.rule=Host:${HOSTNAME};PathPrefix:/tensorflow_and_pytorch2/
       - traefik.frontend.auth.basic=${ML_HTTP_USER}:${ML_HTTP_AUTH_PASS_ENC}
     networks:
       - traefik_default
 
   tensorboard:
     build: .
-    container_name: tensorboard
+    container_name: tensorboard2
     user: $NB_UID:$NB_GID
     working_dir: /home/${NB_USER}
     volumes:
@@ -43,34 +45,16 @@ services:
     # Mapping ports should not be done if we do not want to expose the service to the internet
     #  - 6006:8888
     entrypoint: []
-    command: tensorboard --logdir=tensorboard/runs --port=8888 --bind_all --path_prefix=/tensorboard/
+    command: tensorboard --logdir=tensorboard/runs --port=8888 --bind_all --path_prefix=/tensorboard2/
     ipc: host
     labels:
       - log.level=debug
       - traefik.enable=true
-      - traefik.frontend.rule=Host:${HOSTNAME};PathPrefix:/tensorboard/
+      - traefik.frontend.rule=Host:${HOSTNAME};PathPrefix:/tensorboard2/
       - traefik.frontend.auth.basic=${ML_HTTP_USER}:${ML_HTTP_AUTH_PASS_ENC}
     networks:
       - traefik_default
 
-  minio:
-    image: minio/minio
-    environment:
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-      MINIO_ENABLE_FSMETA: "true"
-    command: minio server /data
-    #ports:
-    #  - 9000:9000
-    volumes:
-      - ${NOTEBOOKS_FOLDER}:/data
-      - ${MINIO_DIR}/config:/root/minio
-    labels:
-      - traefik.enable=true
-      - traefik.frontend.rule=Host:${HOSTNAME}
-      # - traefik.frontend.auth.basic=${MINIO_HTTP_USER}:${MINO_HTTP_AUTH_PASS_ENC}
-    networks:
-      - traefik_default
 
 networks:
   traefik_default:
