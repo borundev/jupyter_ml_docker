@@ -13,7 +13,6 @@ services:
     working_dir: /home/${NB_USER}
     volumes:
       - ${NOTEBOOKS_FOLDER}:/home/${NB_USER}
-      - ./notebooks:/home/${NB_USER}/repository_notebooks
       - /etc/group:/etc/group:ro
       - /etc/passwd:/etc/passwd:ro
       - /etc/shadow:/etc/shadow:ro
@@ -51,6 +50,25 @@ services:
       - traefik.enable=true
       - traefik.frontend.rule=Host:${HOSTNAME};PathPrefix:/tensorboard/
       - traefik.frontend.auth.basic=${ML_HTTP_USER}:${ML_HTTP_AUTH_PASS_ENC}
+    networks:
+      - traefik_default
+
+  minio:
+    image: minio/minio
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_ENABLE_FSMETA: "true"
+    command: minio server /data
+    #ports:
+    #  - 9000:9000
+    volumes:
+      - ${NOTEBOOKS_FOLDER}:/data
+      - ${MINIO_DIR}/config:/root/minio
+    labels:
+      - traefik.enable=true
+      - traefik.frontend.rule=Host:${HOSTNAME}
+      # - traefik.frontend.auth.basic=${MINIO_HTTP_USER}:${MINO_HTTP_AUTH_PASS_ENC}
     networks:
       - traefik_default
 
