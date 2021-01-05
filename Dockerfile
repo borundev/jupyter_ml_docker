@@ -1,11 +1,38 @@
-FROM tensorflow/tensorflow:latest-jupyter
-RUN pip install --upgrade pip
-RUN apt-get update && apt-get install -y git
-RUN apt-get install -y python-opengl
-RUN apt-get install -y xvfb
-RUN apt-get install libxrender1
+FROM ubuntu:21.04
+RUN apt-get update
+RUN apt-get install -y git
 RUN apt-get install -y wget
 
+
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+RUN bash Miniconda3-latest-Linux-x86_64.sh -b -p /miniconda
+ENV PATH=/miniconda/bin:$PATH
+COPY packages packages
+
+# Tensorflow is installed in the base environment
+# By default the python3 kernelspec points to a miniconda location
+# /miniconda/share/jupyter/kernels/python3 and an ipykernel install installs the kernel in
+# /usr/local/share/jupyter/kernels/python3. This can be solved by first deleting the kernelspec.
+# This makes it point to /usr/local/share/jupyter/kernels/python3. A subsequent install then
+# overwrites this one.
+RUN conda env update -f packages/environment_tensorflow.yml
+RUN jupyter kernelspec remove -f python3
+RUN python -m ipykernel install --name python3 --display-name "Tensorflow"
+RUN pip install -U -r packages/requirements_tensorflow.txt
+
+
+RUN conda env create -f packages/environment_pytorch.yml
+SHELL ["conda","run","-n","pytorch","/bin/bash","-c"]
+RUN python -m ipykernel install --name pytorch --display-name "PyTorch"
+RUN pip install -U -r packages/requirements_pytorch.txt
+
+RUN rm -rf packages
+RUN rm Miniconda3-latest-Linux-x86_64.sh
+
+RUN mkdir -pv /etc/ipython/
+COPY ipython/ipython_config.py /etc/ipython/ipython_config.py
+
+# install jupyter extensions
 RUN pip install -U jupyter_contrib_nbextensions
 RUN pip install -U jupyter_nbextensions_configurator
 RUN pip install -U jupyter
@@ -15,7 +42,6 @@ RUN pip install -U ipywidgets
 RUN jupyter contrib nbextension install
 RUN jupyter nbextensions_configurator enable
 
-
 # turn on extensions
 RUN jupyter nbextension enable collapsible_headings/main
 RUN jupyter nbextension enable rubberband/main
@@ -24,30 +50,13 @@ RUN jupyter nbextension enable codefolding/main
 RUN jupyter nbextension enable scratchpad/main
 RUN jupyter nbextension enable --py widgetsnbextension
 
-COPY packages packages
-RUN pip install -U -r packages/requirements_tf.txt
+ENV NB_USER feynman
+ENV NB_UID 1000
 
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-RUN bash Miniconda3-latest-Linux-x86_64.sh -b -p /miniconda
-ENV PATH=$PATH:/miniconda/condabin
+RUN useradd -m -s /bin/bash -N -u $NB_UID $NB_USER
 
-RUN conda env create -f packages/environment_pytorch.yml
+WORKDIR /home/${NB_USER}
+USER $NB_USER
 
-SHELL ["conda","run","-n","pytorch","/bin/bash","-c"]
-RUN pip install -U -r packages/requirements_pytorch.txt
-
-SHELL ["/bin/bash","-c"]
-RUN python -m ipykernel install --name python3 --display-name "Tensorflow"
-
-SHELL ["conda","run","-n","pytorch","/bin/bash","-c"]
-RUN python -m ipykernel install --name pytorch --display-name "PyTorch"
-
-SHELL ["/bin/bash","-c"]
-RUN rm -rf packages
-RUN rm Miniconda3-latest-Linux-x86_64.sh
-
-RUN mkdir -pv /etc/ipython/
-COPY ipython/ipython_config.py /etc/ipython/ipython_config.py
-
-ENTRYPOINT ["jupyter", "notebook", "--no-browser","--ip=0.0.0.0"]
-
+EXPOSE 8888
+ENTRYPOINT ["jupyter", "notebook", "--no-browser", "--ip=0.0.0.0","--NotebookApp.token=''", "--NotebookApp.password=''"]
