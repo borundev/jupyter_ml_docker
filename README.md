@@ -7,5 +7,9 @@ the same environment is not possible.
 
 # Usage
 
-To use make sure the environment variables in `source_environment_variables` are what you want 
-them to be and run `./run.sh up`
+To run check the vairables in the file `source_environment_variables.sh` and then run 
+```bash
+source source_environment_variables.sh
+docker-compose -f traefik/docker-compose.yml up -d
+docker-compose up -d
+```
