@@ -4,6 +4,7 @@ services:
 
   tensorflow_and_pytorch:
     build: .
+    image: borundev/deep_learning_jupyter
     container_name: tensorflow_and_pytorch
     init: true
     # ports:
@@ -31,6 +32,7 @@ services:
 
   tensorboard:
     build: .
+    image: borundev/deep_learning_jupyter
     container_name: tensorboard
     user: $NB_UID:$NB_GID
     working_dir: /home/${NB_USER}
@@ -57,4 +59,4 @@ services:
 networks:
   traefik_default:
     external:
-      name: traefik_default
+      name: traefik
