@@ -4,4 +4,7 @@ dependencies:
   - ipykernel
   - jupyter
   - matplotlib
+  - pip
+  - pip:
+    - -r file:requirements_tensorflow.txt
 

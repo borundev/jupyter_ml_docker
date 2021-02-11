@@ -18,13 +18,11 @@ COPY packages packages
 RUN conda env update -f packages/environment_tensorflow.yml
 RUN jupyter kernelspec remove -f python3
 RUN python -m ipykernel install --name python3 --display-name "Tensorflow"
-RUN pip install -U -r packages/requirements_tensorflow.txt
 
 
 RUN conda env create -f packages/environment_pytorch.yml
 SHELL ["conda","run","-n","pytorch","/bin/bash","-c"]
 RUN python -m ipykernel install --name pytorch --display-name "PyTorch"
-RUN pip install -U -r packages/requirements_pytorch.txt
 
 RUN rm -rf packages
 RUN rm Miniconda3-latest-Linux-x86_64.sh
